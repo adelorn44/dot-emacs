@@ -3,7 +3,7 @@
 ;;; Emacs > 26.3 TLS bug (problem with installing packages)
 (setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
 ;;; List of required packages
-(setq package-list '(lsp-mode lsp-ui ac-php cmake-mode magit dockerfile-mode vue-mode company company-lsp flycheck which-key use-package typescript-mode yaml-mode projectile pyenv-mode-auto exec-path-from-shell))
+(setq package-list '(lsp-mode lsp-ui ac-php cmake-mode magit dockerfile-mode vue-mode company company-lsp flycheck which-key use-package typescript-mode yaml-mode projectile pyenv-mode-auto exec-path-from-shell lsp-treemacs))
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
 (package-initialize)
 ;;; fetch the list of packages available
@@ -76,6 +76,8 @@
     (auto-complete-mode -1)
     )
   )
+;;; Treemacs integration
+(setq lsp-treemacs-sync-mode 1)
 
 ;;; Pyenv mode
 (use-package pyenv-mode
