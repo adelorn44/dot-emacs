@@ -3,7 +3,7 @@
 ;;; Emacs > 26.3 TLS bug (problem with installing packages)
 (setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
 ;;; List of required packages
-(setq package-list '(lsp-mode lsp-ui ac-php cmake-mode magit dockerfile-mode vue-mode company company-lsp flycheck which-key use-package typescript-mode yaml-mode projectile pyenv-mode-auto exec-path-from-shell lsp-treemacs))
+(setq package-list '(lsp-mode lsp-ui ac-php cmake-mode magit dockerfile-mode vue-mode company company-lsp flycheck which-key use-package typescript-mode yaml-mode projectile pyenv-mode-auto exec-path-from-shell lsp-treemacs dap-mode csv-mode))
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
 (package-initialize)
 ;;; fetch the list of packages available
@@ -22,8 +22,28 @@
 (setq inhibit-startup-screen t)
 
 ;; Python
+(require 'dap-python)
 (add-hook 'python-mode-hook 'pyenv-mode)
-(add-hook 'python-mode-hook 'lsp)
+;; (add-hook 'python-mode-hook 'lsp-python-ms)
+
+(use-package lsp-python-ms
+  :ensure t
+  :init
+  (setq
+   lsp-python-ms-auto-install-server t
+   lsp-keymap-prefix "C-c l"
+   lsp-completion-provider :capf
+   lsp-idle-delay 0.500
+   lsp-headerline-breadcrumb-enable nil)
+  :config
+  (define-key lsp-mode-map (kbd "C-c l") lsp-command-map)
+  (progn
+    (lsp-enable-which-key-integration)
+    (auto-complete-mode -1)
+    )
+  :hook (python-mode . (lambda ()
+                          (require 'lsp-python-ms)
+                          (lsp))))  ; or lsp-deferred
 
 ;; Shell Script
 '(sh-basic-offset 8)
@@ -64,12 +84,11 @@
 ;;; LSP mode
 (use-package lsp-mode
   :init
-  (progn
-    (setq lsp-keymap-prefix "C-c C-l")
-    (setq lsp-completion-provider :capf)
-    (setq lsp-idle-delay 0.500)
-    (setq lsp-headerline-breadcrumb-enable nil)
-    )
+  (setq
+   lsp-keymap-prefix "C-c l"
+   lsp-completion-provider :capf
+   lsp-idle-delay 0.500
+   lsp-headerline-breadcrumb-enable nil)
   :config
   (progn
     (lsp-enable-which-key-integration)
@@ -77,7 +96,12 @@
     )
   )
 ;;; Treemacs integration
+(defun my/treemacs-init ()
+  ;; (other-window 1)
+  ;; (delete-other-windows)
+  )
 (setq lsp-treemacs-sync-mode 1)
+(add-hook 'treemacs-mode-hook 'my/treemacs-init)
 
 ;;; Pyenv mode
 (use-package pyenv-mode
@@ -102,6 +126,8 @@
 (global-set-key (kbd "C-c o t") 'org-todo-list)
 
 (global-set-key (kbd "C-x p") 'previous-multiframe-window)
+
+(global-set-key (kbd "<f5>") 'treemacs)
 
 ;;; Fonts
 
