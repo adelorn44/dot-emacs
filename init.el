@@ -23,10 +23,38 @@
 
 ;; Python
 (require 'dap-python)
-(add-hook 'python-mode-hook 'pyenv-mode)
-;; (add-hook 'python-mode-hook 'lsp-python-ms)
+(add-hook 'python-mode-hook (lambda()
+			      (pyenv-mode)
+			      (define-key
+				python-mode-map
+				(kbd "C-c M-r")
+				'python-shell-restart)))
 
-(use-package lsp-python-ms
+(defun python-shell-restart ()
+  (interactive)
+  (let ((buffer-process)
+	(buffer-beginning (current-buffer))
+	(window-beginning (selected-window)))
+    (switch-to-buffer "*Python*")
+    (setq buffer-process (get-buffer-process (current-buffer)))
+    (if buffer-process (set-process-query-on-exit-flag buffer-process nil))
+    (kill-buffer "*Python*")
+    (run-python)
+    (switch-to-buffer "*Python*")
+    (setq buffer-process (get-buffer-process (current-buffer)))
+    (set-process-query-on-exit-flag buffer-process t)
+    ;; Rearanging windows
+    (select-window window-beginning)
+    (switch-to-buffer buffer-beginning)
+    ;; Opening python in other window if there is one
+    (if (> (count-windows) 1)
+	(progn
+	  (other-window 1)
+	  (switch-to-buffer "*Python*")
+	  (select-window window-beginning)
+	  (switch-to-buffer buffer-beginning)))))
+
+(use-package lsp-pyright
   :ensure t
   :init
   (setq
@@ -42,7 +70,7 @@
     (auto-complete-mode -1)
     )
   :hook (python-mode . (lambda ()
-                          (require 'lsp-python-ms)
+                          (require 'lsp-pyright)
                           (lsp))))  ; or lsp-deferred
 
 ;; Shell Script
@@ -69,7 +97,7 @@
 			   (auto-complete-mode)))
 (setq org-agenda-files (file-expand-wildcards "~/Documents/organisation/*.org" t))
 (setq org-export-default-language "fr")
-(setq org-cycle-emulate-tab 'white)
+;;; (setq org-cycle-emulate-tab 'white)
 ;;; Open .pdf with evince
 (eval-after-load "org"
   '(progn
@@ -117,23 +145,35 @@
 (tool-bar-mode -1)
 (menu-bar-mode -1)
 
-;;; Custom Shortcuts
+;;; User defined Shortcuts
 (global-set-key (kbd "C-x C-b") 'ibuffer)
 
 (global-set-key (kbd "C-c m") 'menu-bar-mode)
 
-(global-set-key (kbd "C-c o a") 'org-agenda-list)
-(global-set-key (kbd "C-c o t") 'org-todo-list)
+(global-set-key (kbd "C-c a") 'org-agenda-list)
+(global-set-key (kbd "C-c t") 'org-todo-list)
 
-(global-set-key (kbd "C-x p") 'previous-multiframe-window)
+(global-set-key (kbd "C-c o p") 'previous-multiframe-window)
+(global-set-key (kbd "C-c o o") 'next-multiframe-window)
+
+(global-set-key (kbd "C-c r") 'eval-region)
 
 (global-set-key (kbd "<f5>") 'treemacs)
+
+(global-set-key (kbd "<f5>") 'treemacs)
+(global-set-key (kbd "C-c g g") 'beginning-of-buffer)
+(global-set-key (kbd "C-c g e") 'end-of-buffer)
 
 ;;; Fonts
 
 (set-frame-font "Ubuntu Mono:pixelsize=23:foundry=DAMA:weight=normal:slant=normal:width=normal:spacing=100:scalable=true" nil t)
 
+;;; Docview
+(setq doc-view-resolution 250)
+
 ;;; Memory usage & misc
 
 (setq gc-cons-threshold (* 100 1024 1024)) ;; 100mb
 (setq read-process-output-max (* 3 1024 1024)) ;; 3mb
+
+(scroll-bar-mode -1)
