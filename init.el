@@ -14,6 +14,9 @@
   (unless (package-installed-p package)
     (package-install package)))
 
+;; Require my custom functions
+(load "~/.emacs.d/functions.el")
+
 ;; Same PATH as shell
 (exec-path-from-shell-initialize)
 
@@ -36,50 +39,6 @@
 				     :name "Raccordement"))
   :bind
   ("C-c h" . dap-hydra))
-
-(defun python-shell-restart ()
-  (interactive)
-  (let ((buffer-process)
-	(buffer-beginning (current-buffer))
-	(window-beginning (selected-window)))
-    (switch-to-buffer "*Python*")
-    (setq buffer-process (get-buffer-process (current-buffer)))
-    (if buffer-process (set-process-query-on-exit-flag buffer-process nil))
-    (kill-buffer "*Python*")
-    (run-python)
-    (switch-to-buffer "*Python*")
-    (setq buffer-process (get-buffer-process (current-buffer)))
-    (set-process-query-on-exit-flag buffer-process t)
-    ;; Rearanging windows
-    (select-window window-beginning)
-    (switch-to-buffer buffer-beginning)
-    ;; Opening python in other window if there is one
-    (if (= (count-windows) 1)
-	(progn
-	  (split-window-below)
-	  (other-window 1)
-	  (switch-to-buffer "*Python*")
-	  (select-window window-beginning)
-	  (switch-to-buffer buffer-beginning)))
-    (other-window 1)
-    (switch-to-buffer "*Python*")
-    (select-window window-beginning)
-    (switch-to-buffer buffer-beginning)))
-
-(defun pandas-to-csv ()
-  (interactive)
-  (let ((variable_name (symbol-name (symbol-at-point))))
-    (move-end-of-line nil)
-    (newline)
-    (indent-for-tab-command)
-    (insert variable_name ".to_csv")
-    (insert "(\"" variable_name ".csv\")")))
-
-(defun my-python-mode ()
-  (require 'dap-python)
-  (pyenv-mode)
-  (define-key python-mode-map (kbd "C-c M-r") 'python-shell-restart)
-  (define-key python-mode-map (kbd "C-c p") 'pandas-to-csv))
 
 (add-hook 'python-mode-hook 'my-python-mode)
 
