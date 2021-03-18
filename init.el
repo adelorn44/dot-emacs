@@ -22,13 +22,20 @@
 (setq inhibit-startup-screen t)
 
 ;; Python
-(require 'dap-python)
-(add-hook 'python-mode-hook (lambda()
-			      (pyenv-mode)
-			      (define-key
-				python-mode-map
-				(kbd "C-c M-r")
-				'python-shell-restart)))
+(use-package dap-python
+  :custom
+  (dap-python-debugger 'debugpy "Use debugpy instead of deprecated ptvsd")
+  :config
+  (dap-register-debug-template "Raccordement"
+			       (list :type "python"
+				     :args "-i"
+				     :cwd nil
+				     :env '(("DEBUG" . "1"))
+				     :target-module (expand-file-name "~/Documents/raccordement/example_nantes.py")
+				     :request "launch"
+				     :name "Raccordement"))
+  :bind
+  ("C-c h" . dap-hydra))
 
 (defun python-shell-restart ()
   (interactive)
@@ -47,12 +54,34 @@
     (select-window window-beginning)
     (switch-to-buffer buffer-beginning)
     ;; Opening python in other window if there is one
-    (if (> (count-windows) 1)
+    (if (= (count-windows) 1)
 	(progn
+	  (split-window-below)
 	  (other-window 1)
 	  (switch-to-buffer "*Python*")
 	  (select-window window-beginning)
-	  (switch-to-buffer buffer-beginning)))))
+	  (switch-to-buffer buffer-beginning)))
+    (other-window 1)
+    (switch-to-buffer "*Python*")
+    (select-window window-beginning)
+    (switch-to-buffer buffer-beginning)))
+
+(defun pandas-to-csv ()
+  (interactive)
+  (let ((variable_name (symbol-name (symbol-at-point))))
+    (move-end-of-line nil)
+    (newline)
+    (indent-for-tab-command)
+    (insert variable_name ".to_csv")
+    (insert "(\"" variable_name ".csv\")")))
+
+(defun my-python-mode ()
+  (require 'dap-python)
+  (pyenv-mode)
+  (define-key python-mode-map (kbd "C-c M-r") 'python-shell-restart)
+  (define-key python-mode-map (kbd "C-c p") 'pandas-to-csv))
+
+(add-hook 'python-mode-hook 'my-python-mode)
 
 (use-package lsp-pyright
   :ensure t
@@ -108,35 +137,33 @@
        (add-to-list 'org-file-apps '("\\.txt\\'" . "gedit %s") t))
      ;; Change .pdf association directly within the alist
      (setcdr (assoc "\\.pdf\\'" org-file-apps) "evince %s")))
+;;; Markdown export
+(eval-after-load "org"
+  '(require 'ox-md nil t))
 
 ;;; LSP mode
 (use-package lsp-mode
-  :init
-  (setq
-   lsp-keymap-prefix "C-c l"
-   lsp-completion-provider :capf
-   lsp-idle-delay 0.500
-   lsp-headerline-breadcrumb-enable nil)
+  :custom
+  (lsp-keymap-prefix "C-c l")
+  (lsp-completion-provider :capf)
+  (lsp-idle-delay 0.500)
+  (lsp-headerline-breadcrumb-enable nil "Disable breadcrumb")
+  (lsp-treemacs-sync-mode 1 "Enable Treemacs integration")
   :config
-  (progn
-    (lsp-enable-which-key-integration)
-    (auto-complete-mode -1)
-    )
-  )
-;;; Treemacs integration
-(defun my/treemacs-init ()
-  ;; (other-window 1)
-  ;; (delete-other-windows)
-  )
-(setq lsp-treemacs-sync-mode 1)
-(add-hook 'treemacs-mode-hook 'my/treemacs-init)
+  (lsp-enable-which-key-integration)
+  (auto-complete-mode -1))
+
+(use-package lsp-ui
+  :custom
+  (lsp-ui-doc-enable nil)
+  :bind
+  ("C-c i" . lsp-ui-imenu))
 
 ;;; Pyenv mode
 (use-package pyenv-mode
   :init
-  (lambda ()
-    ;; Ajout du PATH pour pyenv
-    (setenv "PATH" (concat (getenv "PATH") ":/home/jules/.pyenv/bin/"))))
+  ;; Ajout du PATH pour pyenv
+  (setenv "PATH" (concat (getenv "PATH") ":/home/jules/.pyenv/bin/")))
 
 ;;; Global which key mode
 (which-key-mode)
@@ -153,8 +180,12 @@
 (global-set-key (kbd "C-c a") 'org-agenda-list)
 (global-set-key (kbd "C-c t") 'org-todo-list)
 
-(global-set-key (kbd "C-c o p") 'previous-multiframe-window)
-(global-set-key (kbd "C-c o o") 'next-multiframe-window)
+;; Multiple screen setup
+(global-set-key (kbd "C-c p") 'previous-multiframe-window)
+(global-set-key (kbd "C-x <down>") 'other-frame)
+(global-set-key (kbd "C-x <up>") 'other-frame)
+(global-set-key (kbd "C-x C-<down>") 'other-frame)
+(global-set-key (kbd "C-x C-<up>") 'other-frame)
 
 (global-set-key (kbd "C-c r") 'eval-region)
 
@@ -177,3 +208,9 @@
 (setq read-process-output-max (* 3 1024 1024)) ;; 3mb
 
 (scroll-bar-mode -1)
+
+;;; Lecture des fichiers .csv de Roseau
+(setq csv-separators '(";" "," ":"))
+
+;;; Ouverture d'une fenêtre au démarrage
+(add-hook 'emacs-startup-hook 'make-frame-command)
