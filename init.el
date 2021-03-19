@@ -1,6 +1,6 @@
 (require 'package)
 
-;;; Emacs > 26.3 TLS bug (problem with installing packages)
+;;; Emacs < 26.3 TLS bug (problem when installing melpa packages)
 (setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
 ;;; List of required packages
 (setq package-list '(lsp-mode lsp-ui ac-php cmake-mode magit dockerfile-mode vue-mode company company-lsp flycheck which-key use-package typescript-mode yaml-mode projectile pyenv-mode-auto exec-path-from-shell lsp-treemacs dap-mode csv-mode))
@@ -24,6 +24,12 @@
 (load-theme 'tango-dark)
 (setq inhibit-startup-screen t)
 
+;; Yasnippets
+(use-package yasnippet
+  :ensure t
+  :custom
+  (yas-snippet-dirs '("~/.emacs.d/snippets")))
+
 ;; Python
 (use-package dap-python
   :custom
@@ -41,22 +47,20 @@
   ("C-c h" . dap-hydra))
 
 (add-hook 'python-mode-hook 'my-python-mode)
+(add-hook 'prog-mode-hook #'yas-minor-mode)
 
 (use-package lsp-pyright
   :ensure t
-  :init
-  (setq
-   lsp-python-ms-auto-install-server t
-   lsp-keymap-prefix "C-c l"
-   lsp-completion-provider :capf
-   lsp-idle-delay 0.500
-   lsp-headerline-breadcrumb-enable nil)
+  :custom
+  (lsp-python-ms-auto-install-server t)
+  (lsp-keymap-prefix "C-c l")
+  (lsp-completion-provider :capf)
+  (lsp-idle-delay 0.500)
+  (lsp-headerline-breadcrumb-enable nil)
   :config
   (define-key lsp-mode-map (kbd "C-c l") lsp-command-map)
-  (progn
-    (lsp-enable-which-key-integration)
-    (auto-complete-mode -1)
-    )
+  (lsp-enable-which-key-integration)
+  (auto-complete-mode -1)
   :hook (python-mode . (lambda ()
                           (require 'lsp-pyright)
                           (lsp))))  ; or lsp-deferred

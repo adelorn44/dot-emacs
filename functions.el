@@ -3,8 +3,7 @@
 (defun my-python-mode ()
   (require 'dap-python)
   (pyenv-mode)
-  (define-key python-mode-map (kbd "C-c M-r") 'python-shell-restart)
-  (define-key python-mode-map (kbd "C-c p") 'pandas-to-csv))
+  (define-key python-mode-map (kbd "C-c M-r") 'python-shell-restart))
 
 (defun python-shell-restart ()
   (interactive)
@@ -34,12 +33,3 @@
     (switch-to-buffer "*Python*")
     (select-window window-beginning)
     (switch-to-buffer buffer-beginning)))
-
-(defun pandas-to-csv ()
-  (interactive)
-  (let ((variable_name (symbol-name (symbol-at-point))))
-    (move-end-of-line nil)
-    (newline)
-    (indent-for-tab-command)
-    (insert variable_name ".to_csv")
-    (insert "(\"" variable_name ".csv\")")))
