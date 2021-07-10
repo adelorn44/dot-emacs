@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: Import geopandas
+# key: gpd
+# group : general
+# --
+import geopandas as gpd
+$0

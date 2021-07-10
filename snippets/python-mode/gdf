@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: GeoDataFrame
+# key: gdf
+# --
+$1 = gpd.GeoDataFrame(\{
+    'geometry': gpd.GeoSeries,
+    $0
+\})

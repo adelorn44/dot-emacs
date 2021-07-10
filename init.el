@@ -1,14 +1,14 @@
 (require 'package)
 
-;;; Emacs < 26.3 TLS bug (problem when installing melpa packages)
-(setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
 ;;; List of required packages
-(setq package-list '(lsp-mode lsp-ui ac-php cmake-mode magit dockerfile-mode vue-mode company company-lsp flycheck which-key use-package typescript-mode yaml-mode projectile pyenv-mode-auto exec-path-from-shell lsp-treemacs dap-mode csv-mode))
+(setq package-list '(cmake-mode magit dockerfile-mode vue-mode company flycheck which-key use-package yaml-mode projectile exec-path-from-shell lsp-treemacs dap-mode csv-mode))
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
 (package-initialize)
+
 ;;; fetch the list of packages available
 (unless package-archive-contents
   (package-refresh-contents))
+
 ;;; install the missing packages
 (dolist (package package-list)
   (unless (package-installed-p package)
@@ -26,9 +26,23 @@
 
 ;; Yasnippets
 (use-package yasnippet
+  :config
+  ;; Hack to ensure snippets are loaded... (To be replaced)
+  (yas-load-directory (car yas/root-directory))
+  :ensure t)
+
+;; Projectile
+(use-package projectile
   :ensure t
+  :config
+  (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+  (projectile-mode 1)
   :custom
-  (yas-snippet-dirs '("~/.emacs.d/snippets")))
+  (projectile-completion-system 'ivy))
+
+;; Ivy
+(use-package ivy :ensure t :config (ivy-mode 1))
+
 
 ;; Python
 (use-package dap-python
@@ -43,8 +57,29 @@
 				     :target-module (expand-file-name "~/Documents/raccordement/example_nantes.py")
 				     :request "launch"
 				     :name "Raccordement"))
+  (dap-register-debug-template
+   "Python :: Run sirao_cli"
+   (list :type "python"
+         :args "network connection-options Nantes_Metropole.sqlite sites_nantes_id.csv \"Situation été\" Original REDACTED full_output"
+         :cwd nil
+         :module "sirao_cli"
+         :program nil
+         :request "launch"
+         :name "Python :: Run sirao_cli"))
+
+  (dap-register-debug-template
+   "Core :: Run pytest (at point)"
+   (list :type "python-test-at-point"
+         :args ""
+	 :env '(("GMAPS_API_KEY" . "REDACTED"))
+         :program nil
+         :module "pytest"
+         :request "launch"
+         :name "Core :: Run pytest (at point)"))
   :bind
   ("C-c h" . dap-hydra))
+
+(use-package blacken :ensure t :custom (blacken-line-length 120))
 
 (add-hook 'python-mode-hook 'my-python-mode)
 (add-hook 'prog-mode-hook #'yas-minor-mode)
@@ -64,6 +99,13 @@
   :hook (python-mode . (lambda ()
                           (require 'lsp-pyright)
                           (lsp))))  ; or lsp-deferred
+
+(defun my-python-mode ()
+  (require 'dap-python)
+  (pyenv-mode)
+  (define-key python-mode-map (kbd "C-c M-r") 'python-shell-restart)
+  (define-key python-mode-map (kbd "C-c C-d") 'python-copy-next-docstring)
+  (define-key python-mode-map (kbd "C-c C-b") 'blacken-buffer))
 
 ;; Shell Script
 '(sh-basic-offset 8)
@@ -86,50 +128,60 @@
 
 ;;; Org mode
 (add-hook 'org-mode-hook (lambda ()
-			   (auto-complete-mode)))
+			   (auto-complete-mode)
+			   (org-babel-do-load-languages
+			    'org-babel-load-languages
+			    '((python . t)))))
 (setq org-agenda-files (file-expand-wildcards "~/Documents/organisation/*.org" t))
 (setq org-export-default-language "fr")
+(setq org-todo-keywords
+      '((sequence "TODO" "FEEDBACK" "|" "DONE")))
 ;;; (setq org-cycle-emulate-tab 'white)
 ;;; Open .pdf with evince
 (eval-after-load "org"
-  '(progn
-     ;; .txt files aren't in the list initially, but in case that changes
-     ;; in a future version of org, use if to avoid errors
-     (if (assoc "\\.txt\\'" org-file-apps)
-         (setcdr (assoc "\\.txt\\'" org-file-apps) "gedit %s")
-       (add-to-list 'org-file-apps '("\\.txt\\'" . "gedit %s") t))
-     ;; Change .pdf association directly within the alist
-     (setcdr (assoc "\\.pdf\\'" org-file-apps) "evince %s")))
-;;; Markdown export
+  '(setcdr (assoc "\\.pdf\\'" org-file-apps) "evince %s"))
+;; Markdown export
 (eval-after-load "org"
   '(require 'ox-md nil t))
+;; Org Capture
+(setq org-directory (expand-file-name "~/Documents/organisation"))
+(setq org-default-notes-file (concat org-directory "/notes.org"))
 
 ;;; LSP mode
 (use-package lsp-mode
+  :ensure t
   :custom
   (lsp-keymap-prefix "C-c l")
   (lsp-completion-provider :capf)
   (lsp-idle-delay 0.500)
   (lsp-headerline-breadcrumb-enable nil "Disable breadcrumb")
-  (lsp-treemacs-sync-mode 1 "Enable Treemacs integration")
+  (lsp-treemacs-sync-mode -1 "Disable Treemacs integration")
   :config
-  (lsp-enable-which-key-integration)
+  (lsp-enable-which-key-integration t)
   (auto-complete-mode -1))
 
 (use-package lsp-ui
+  :ensure t
   :custom
   (lsp-ui-doc-enable nil)
   :bind
   ("C-c i" . lsp-ui-imenu))
 
 ;;; Pyenv mode
-(use-package pyenv-mode
+(use-package pyenv-mode-auto
+  :ensure t
   :init
   ;; Ajout du PATH pour pyenv
   (setenv "PATH" (concat (getenv "PATH") ":/home/jules/.pyenv/bin/")))
 
 ;;; Global which key mode
 (which-key-mode)
+
+;; Smileys
+(use-package unicode-fonts
+   :ensure t
+   :config
+    (unicode-fonts-setup))
 
 ;;; Toolbar
 (tool-bar-mode -1)
@@ -142,9 +194,19 @@
 
 (global-set-key (kbd "C-c a") 'org-agenda-list)
 (global-set-key (kbd "C-c t") 'org-todo-list)
+(global-set-key (kbd "C-c c") 'my/display-line-length)
+(global-set-key (kbd "C-c u") 'emacs-uptime)
+(global-set-key (kbd "C-z") 'zap-up-to-char)
+(global-set-key (kbd "M-z") 'zap-to-char)
+(global-set-key (kbd "C-M-z") 'kill-ring-save-up-to-char)
+(global-set-key (kbd "C-c y") 'yank-with-indent)
+
+(global-set-key (kbd "C-c o o") 'origami-mode)
+(global-set-key (kbd "C-c o t") 'origami-toggle-node)
+(global-set-key (kbd "C-c o c") 'origami-close-all-nodes)
+
 
 ;; Multiple screen setup
-(global-set-key (kbd "C-c p") 'previous-multiframe-window)
 (global-set-key (kbd "C-x <down>") 'other-frame)
 (global-set-key (kbd "C-x <up>") 'other-frame)
 (global-set-key (kbd "C-x C-<down>") 'other-frame)
@@ -153,14 +215,16 @@
 (global-set-key (kbd "C-c r") 'eval-region)
 
 (global-set-key (kbd "<f5>") 'treemacs)
+(global-set-key (kbd "<f6>") 'python-mode)
+(global-set-key (kbd "<f7>") 'my-pytest-redo)
 
-(global-set-key (kbd "<f5>") 'treemacs)
 (global-set-key (kbd "C-c g g") 'beginning-of-buffer)
 (global-set-key (kbd "C-c g e") 'end-of-buffer)
 
 ;;; Fonts
-
-(set-frame-font "Ubuntu Mono:pixelsize=23:foundry=DAMA:weight=normal:slant=normal:width=normal:spacing=100:scalable=true" nil t)
+(condition-case nil
+    (set-frame-font "Ubuntu Mono:pixelsize=23:foundry=DAMA:weight=normal:slant=normal:width=normal:spacing=100:scalable=true" nil t)
+  (error (message "Warning: You should install the Ubuntu font located in ~/.emacs.d/UbuntuMono-R.ttf")))
 
 ;;; Docview
 (setq doc-view-resolution 250)
@@ -172,8 +236,81 @@
 
 (scroll-bar-mode -1)
 
-;;; Lecture des fichiers .csv de Roseau
+;;; Lecture des fichiers .csv de Roseau (format français)
 (setq csv-separators '(";" "," ":"))
+;(setq csv-separators '(";"))
 
 ;;; Ouverture d'une fenêtre au démarrage
 (add-hook 'emacs-startup-hook 'make-frame-command)
+
+;;; Code source Emacs pour la doc intégrée
+(setq find-function-C-source-directory (expand-file-name "~/.emacs.d/src"))
+
+;;; Testing mount mode
+(use-package powerline :ensure t :config (powerline-default-theme))
+(use-package diminish
+  :ensure t
+  :config
+  ;; Diminish global modes since they are always present
+  (diminish 'projectile-mode)
+  (diminish 'ivy-mode)
+  (diminish 'which-key-mode))
+
+;;; Tabs are usually bad
+(setq indent-tabs-mode nil)
+
+;;; Enable upcase region (bound on C-x C-u)
+(put 'upcase-region 'disabled nil)
+(put 'downcase-region 'disabled nil)
+
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(ibuffer-saved-filter-groups
+   '(("Pytest"
+      ("Pytest"
+       (name . "test_.*.py$\\|tests\\|conftest.py"))
+      ("Python"
+       (or
+	(name . "\\(\\.py$\\)\\|\\(shell\\)\\|\\(Python\\*\\)")
+	(mode . dired-mode))))))
+ '(ibuffer-saved-filters
+   '(("python"
+      (or
+       (name . "\\(\\.py$\\)\\|\\(shell\\)\\|\\(Python\\*\\)")
+       (mode . dired-mode)))
+     ("programming"
+      (or
+       (derived-mode . prog-mode)
+       (mode . ess-mode)
+       (mode . compilation-mode)))
+     ("text document"
+      (and
+       (derived-mode . text-mode)
+       (not
+	(starred-name))))
+     ("TeX"
+      (or
+       (derived-mode . tex-mode)
+       (mode . latex-mode)
+       (mode . context-mode)
+       (mode . ams-tex-mode)
+       (mode . bibtex-mode)))
+     ("web"
+      (or
+       (derived-mode . sgml-mode)
+       (derived-mode . css-mode)
+       (mode . javascript-mode)
+       (mode . js2-mode)
+       (mode . scss-mode)
+       (derived-mode . haml-mode)
+       (mode . sass-mode)))
+     ("gnus"
+      (or
+       (mode . message-mode)
+       (mode . mail-mode)
+       (mode . gnus-group-mode)
+       (mode . gnus-summary-mode)
+       (mode . gnus-article-mode))))))

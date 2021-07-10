@@ -2,4 +2,4 @@
 # name: Export DataFrame to CSV
 # key: csv
 # --
-$1.to_csv("$1")
+$1.to_csv("$1.csv")
