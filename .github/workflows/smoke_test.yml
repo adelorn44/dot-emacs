@@ -25,9 +25,8 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      # Show files
-      - name: Show files and current working directory
-        run: ls -l && pwd
+      - name: Copy Emacs config to home directory
+        run: cp -r . ~/.emacs.d
 
       # Runs a single command using the runners shell
       - name: Install emacs 27
