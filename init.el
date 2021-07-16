@@ -222,7 +222,7 @@
 (setq gc-cons-threshold (* 100 1024 1024)) ;; 100mb
 (setq read-process-output-max (* 3 1024 1024)) ;; 3mb
 
-(scroll-bar-mode -1)
+(if (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
 
 ;;; Lecture des fichiers .csv de Roseau (format français)
 (setq csv-separators '(";" "," ":"))
