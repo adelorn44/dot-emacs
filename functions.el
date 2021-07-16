@@ -111,6 +111,8 @@
       (progn (my-open-buffer-split-below (current-buffer))
 	     (other-window 1)
 	     (switch-to-buffer "*shell*")))
+  (if (not (string-equal "shell-mode" major-mode))
+      (shell (current-buffer)))
   (end-of-buffer)
   (comint-previous-matching-input "^pytest" 1)
   (comint-send-input))
