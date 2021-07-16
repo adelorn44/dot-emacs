@@ -15,8 +15,8 @@
     (package-install package)))
 
 ;; Require my custom functions and customizations
-(load "~/.emacs.d/functions.el")
-(load "~/.emacs.d/my-customize-init.el")
+(load (expand-file-name "~/.emacs.d/functions.el"))
+(load (expand-file-name "~/.emacs.d/my-customize-init.el"))
 
 ;; Same PATH as shell
 (exec-path-from-shell-initialize)
