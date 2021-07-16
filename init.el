@@ -15,8 +15,8 @@
     (package-install package)))
 
 ;; Require my custom functions and customizations
-(load "~/.emacs.d/functions.el")
-(load "~/.emacs.d/my-customize-init.el")
+(load (expand-file-name "~/.emacs.d/functions.el"))
+(load (expand-file-name "~/.emacs.d/my-customize-init.el"))
 
 ;; Same PATH as shell
 (exec-path-from-shell-initialize)
@@ -222,7 +222,7 @@
 (setq gc-cons-threshold (* 100 1024 1024)) ;; 100mb
 (setq read-process-output-max (* 3 1024 1024)) ;; 3mb
 
-(scroll-bar-mode -1)
+(if (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
 
 ;;; Lecture des fichiers .csv de Roseau (format français)
 (setq csv-separators '(";" "," ":"))
