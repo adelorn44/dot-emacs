@@ -1,7 +1,7 @@
 (require 'package)
 
 ;;; List of required packages
-(setq package-list '(cmake-mode magit dockerfile-mode vue-mode company flycheck which-key use-package yaml-mode projectile exec-path-from-shell lsp-treemacs dap-mode csv-mode))
+(setq package-list '(cmake-mode magit dockerfile-mode vue-mode flycheck which-key use-package yaml-mode projectile exec-path-from-shell lsp-treemacs csv-mode))
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
 (package-initialize)
 
@@ -14,8 +14,9 @@
   (unless (package-installed-p package)
     (package-install package)))
 
-;; Require my custom functions
-(load "~/.emacs.d/functions.el")
+;; Require my custom functions and customizations
+(load (expand-file-name "~/.emacs.d/functions.el"))
+(load (expand-file-name "~/.emacs.d/my-customize-init.el"))
 
 ;; Same PATH as shell
 (exec-path-from-shell-initialize)
@@ -27,8 +28,10 @@
 ;; Yasnippets
 (use-package yasnippet
   :config
-  ;; Hack to ensure snippets are loaded... (To be replaced)
-  (yas-load-directory (car yas/root-directory))
+  (add-to-list 'yas-snippet-dirs (expand-file-name "~/.emacs.d/snippets") t)
+  (yas-load-directory (expand-file-name "~/.emacs.d/snippets"))
+  :bind
+  (:map yas-minor-mode-map ("C-;" . yas-expand))
   :ensure t)
 
 (use-package yasnippet-snippets :ensure t)
@@ -45,20 +48,30 @@
 ;; Ivy
 (use-package ivy :ensure t :config (ivy-mode 1))
 
+;; Company
+(use-package company :ensure t)
+
+;; Dap Mode
+(use-package dap-mode
+  :ensure t
+  :bind
+  (:map dap-mode-map ("C-c h" . dap-hydra)))
 
 ;; Python
 (use-package dap-python
   :custom
   (dap-python-debugger 'debugpy "Use debugpy instead of deprecated ptvsd")
   :config
-  (dap-register-debug-template "Raccordement"
-			       (list :type "python"
-				     :args "-i"
-				     :cwd nil
-				     :env '(("DEBUG" . "1"))
-				     :target-module (expand-file-name "~/Documents/raccordement/example_nantes.py")
-				     :request "launch"
-				     :name "Raccordement"))
+  (dap-register-debug-template
+   "Raccordement"
+   (list :type "python"
+	 :args "-i"
+	 :cwd nil
+	 :env '(("DEBUG" . "1"))
+	 :target-module (expand-file-name "~/Documents/raccordement/example_nantes.py")
+	 :request "launch"
+	 :name "Raccordement"))
+
   (dap-register-debug-template
    "Python :: Run sirao_cli"
    (list :type "python"
@@ -77,14 +90,9 @@
          :program nil
          :module "pytest"
          :request "launch"
-         :name "Core :: Run pytest (at point)"))
-  :bind
-  ("C-c h" . dap-hydra))
+         :name "Core :: Run pytest (at point)")))
 
 (use-package blacken :ensure t :custom (blacken-line-length 120))
-
-(add-hook 'python-mode-hook 'my-python-mode)
-(add-hook 'prog-mode-hook #'yas-minor-mode)
 
 (use-package lsp-pyright
   :ensure t
@@ -97,25 +105,22 @@
   :config
   (define-key lsp-mode-map (kbd "C-c l") lsp-command-map)
   (lsp-enable-which-key-integration)
-  (auto-complete-mode -1)
   :hook (python-mode . (lambda ()
                           (require 'lsp-pyright)
                           (lsp))))  ; or lsp-deferred
 
-(defun my-python-mode ()
-  (require 'dap-python)
-  (pyenv-mode)
+;; Python mode custom keys
+(defun my-python-mode-hook ()
   (define-key python-mode-map (kbd "C-c M-r") 'python-shell-restart)
   (define-key python-mode-map (kbd "C-c C-d") 'python-copy-next-docstring)
   (define-key python-mode-map (kbd "C-c C-b") 'blacken-buffer))
+(add-hook 'python-mode-hook 'my-python-mode-hook)
+
 
 ;; Shell Script
 '(sh-basic-offset 8)
 '(sh-indentation 8)
 '(smie-indent-basic 8)
-
-;;; EDE
-(global-ede-mode t)
 
 ;;; C-mode
 (add-hook 'c-mode-hook 'lsp)
@@ -130,7 +135,7 @@
 
 ;;; Org mode
 (add-hook 'org-mode-hook (lambda ()
-			   (auto-complete-mode)
+			   (company-mode)
 			   (org-babel-do-load-languages
 			    'org-babel-load-languages
 			    '((python . t)))))
@@ -159,29 +164,22 @@
   (lsp-headerline-breadcrumb-enable nil "Disable breadcrumb")
   (lsp-treemacs-sync-mode -1 "Disable Treemacs integration")
   :config
-  (lsp-enable-which-key-integration t)
-  (auto-complete-mode -1))
+  (lsp-enable-which-key-integration t))
 
 (use-package lsp-ui
   :ensure t
   :custom
   (lsp-ui-doc-enable nil)
   :bind
-  ("C-c i" . lsp-ui-imenu))
-
-;;; Pyenv mode
-(use-package pyenv-mode-auto
-  :ensure t
-  :init
-  ;; Ajout du PATH pour pyenv
-  (setenv "PATH" (concat (getenv "PATH") ":/home/jules/.pyenv/bin/")))
+  (:map lsp-ui-mode-map
+	("C-c i" . lsp-ui-imenu)
+	("C-c f" . lsp-ui-flycheck-list)))
 
 ;;; Global which key mode
 (which-key-mode)
 
 ;; Web configuration
 (require 'web-init "~/.emacs.d/web-init.el")
-
 
 ;;; Toolbar
 (tool-bar-mode -1)
@@ -192,6 +190,9 @@
 
 (global-set-key (kbd "C-c m") 'menu-bar-mode)
 
+(global-set-key (kbd "C-c g g") 'beginning-of-buffer)
+(global-set-key (kbd "C-c g e") 'end-of-buffer)
+
 (global-set-key (kbd "C-c a") 'org-agenda-list)
 (global-set-key (kbd "C-c t") 'org-todo-list)
 (global-set-key (kbd "C-c c") 'my/display-line-length)
@@ -201,25 +202,15 @@
 (global-set-key (kbd "C-M-z") 'kill-ring-save-up-to-char)
 (global-set-key (kbd "C-c y") 'yank-with-indent)
 
-(global-set-key (kbd "C-c o o") 'origami-mode)
-(global-set-key (kbd "C-c o t") 'origami-toggle-node)
-(global-set-key (kbd "C-c o c") 'origami-close-all-nodes)
-
-
 ;; Multiple screen setup
 (global-set-key (kbd "C-x <down>") 'other-frame)
 (global-set-key (kbd "C-x <up>") 'other-frame)
 (global-set-key (kbd "C-x C-<down>") 'other-frame)
 (global-set-key (kbd "C-x C-<up>") 'other-frame)
 
-(global-set-key (kbd "C-c r") 'eval-region)
-
 (global-set-key (kbd "<f5>") 'treemacs)
 (global-set-key (kbd "<f6>") 'python-mode)
 (global-set-key (kbd "<f7>") 'my-pytest-redo)
-
-(global-set-key (kbd "C-c g g") 'beginning-of-buffer)
-(global-set-key (kbd "C-c g e") 'end-of-buffer)
 
 ;;; Fonts
 (condition-case nil
@@ -234,20 +225,17 @@
 (setq gc-cons-threshold (* 100 1024 1024)) ;; 100mb
 (setq read-process-output-max (* 3 1024 1024)) ;; 3mb
 
-(scroll-bar-mode -1)
+(if (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
 
 ;;; Lecture des fichiers .csv de Roseau (format français)
 (setq csv-separators '(";" "," ":"))
 ;(setq csv-separators '(";"))
 
 ;;; Ouverture d'une fenêtre au démarrage
-(add-hook 'emacs-startup-hook 'make-frame-command)
+(if my-open-two-windows (add-hook 'emacs-startup-hook 'make-frame-command))
 
-;;; Code source Emacs pour la doc intégrée
-(setq find-function-C-source-directory (expand-file-name "~/.emacs.d/src"))
-
-;;; Testing mount mode
 (use-package powerline :ensure t :config (powerline-default-theme))
+
 (use-package diminish
   :ensure t
   :config
