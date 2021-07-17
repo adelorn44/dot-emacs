@@ -31,6 +31,8 @@
   (yas-load-directory (car yas/root-directory))
   :ensure t)
 
+(use-package yasnippet-snippets :ensure t)
+
 ;; Projectile
 (use-package projectile
   :ensure t
@@ -177,11 +179,9 @@
 ;;; Global which key mode
 (which-key-mode)
 
-;; Smileys
-(use-package unicode-fonts
-   :ensure t
-   :config
-    (unicode-fonts-setup))
+;; Web configuration
+(require 'web-init "~/.emacs.d/web-init.el")
+
 
 ;;; Toolbar
 (tool-bar-mode -1)
