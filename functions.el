@@ -73,9 +73,40 @@
   (interactive)
   (message (number-to-string (- (line-end-position) (line-beginning-position)))))
 
-;; TODO: la coder en Lisp
-(fset 'transpose-tuple
-   (kmacro-lambda-form [?\C-r ?\( return ?\M-x ?s ?e ?a ?r ?c ?h ?- ?f ?o ?r ?w ?a ?r ?d ?- ?r ?e ?g ?e ?x ?p return ?\[ ?0 ?- ?9 return left ?\C-  ?\C-s ?, return left right ?\M-x ?s ?e ?a ?r ?c ?h ?- ?b ?a ?c ?k ?w ?a ?r ?d ?- ?r ?e ?g ?e ?x return ?\[ ?0 ?- ?9 return right ?\C-w ?\C-s ?, return backspace ?\M-x ?s ?e ?a ?r ?c ?h ?- ?f ?r backspace ?o ?r ?w ?a ?r ?d ?- ?r ?e ?g ?e ?x return ?\[ ?0 ?- ?9 return left ?\C-  ?\C-s ?\) return ?\M-x ?s ?e ?a ?r ?c ?h ?- ?b ?a ?c ?k ?w ?a ?r ?d ?- ?r ?e ?g ?e ?x return ?\[ ?0 ?- ?9 return right ?\C-w ?\C-s ?\) return left ?\C-  ?\C-r ?\( return right backspace ?\C-y ?, ?  ?\C-y ?\M-y] 0 "%d"))
+(defun my-transpose-tuple (str)
+  "Transpose a Python tuple. The input string should look like \"(1, 1.02, variable)\"."
+  (when (not (char-equal ?\( (aref str 0)))
+    (error "Error in tuple format: %c instead of ( at str pos 0" (aref str 0)))
+  (when (not (char-equal ?\) (aref str (- (length str) 1))))
+    (error "Error in tuple format: %c instead of ) at str pos -1" (aref str (- (length str) 1))))
+  (let (tuple-words tuple-words-trim res)
+    (setq tuple-words (split-string (substring str 1 -1) ","))
+    (dolist (it tuple-words tuple-words-trim)
+      (setq tuple-words-trim (append tuple-words-trim `(,(string-trim it)))))
+    (setq tuple-words (reverse tuple-words-trim))
+    (setq res "(")
+    (dolist (it tuple-words res)
+      (when (char-equal ?\( (aref it 0))
+	(error "Error: nested tuple transposition is not supported"))
+      (setq res (concat res it ", ")))
+    (setq res (substring res 0 -2))
+    (concat res ")")))
+
+(defun my-transpose-tuple-at-point ()
+  "Transpose a Python tuple at point. The point should be inside of a Python tuple."
+  (interactive)
+  (let (init-point point-tuple-beg point-tuple-end tuple)
+    (setq init-point (point))
+    (re-search-backward "(")
+    (setq point-tuple-beg (point))
+    (re-search-forward ")")
+    (setq point-tuple-end (point))
+    (setq tuple (buffer-substring-no-properties point-tuple-beg point-tuple-end))
+    (setq tuple (my-transpose-tuple tuple))
+    (delete-region point-tuple-beg point-tuple-end)
+    (insert tuple)
+    (set-window-point (selected-window) init-point))
+  nil)
 
 (defun yank-with-indent ()
   (interactive)

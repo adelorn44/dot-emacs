@@ -113,7 +113,8 @@
 (defun my-python-mode-hook ()
   (define-key python-mode-map (kbd "C-c M-r") 'python-shell-restart)
   (define-key python-mode-map (kbd "C-c C-d") 'python-copy-next-docstring)
-  (define-key python-mode-map (kbd "C-c C-b") 'blacken-buffer))
+  (define-key python-mode-map (kbd "C-c C-b") 'blacken-buffer)
+  (define-key python-mode-map (kbd "C-c C-t") 'my-transpose-tuple-at-point))
 (add-hook 'python-mode-hook 'my-python-mode-hook)
 
 
