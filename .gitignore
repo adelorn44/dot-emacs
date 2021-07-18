@@ -1,5 +1,10 @@
 *
+
 !*.el
+!tests
+!.github/workflows/ci.yml
 !.ttf
 !snippets
 !.gitignore
+
+*~

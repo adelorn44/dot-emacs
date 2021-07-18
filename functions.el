@@ -147,3 +147,5 @@
   (end-of-buffer)
   (comint-previous-matching-input "^pytest" 1)
   (comint-send-input))
+
+(provide 'my-functions)
