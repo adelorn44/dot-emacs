@@ -1,4 +1,4 @@
-;;; My functions :)
+;;; My helper/useful functions
 
 (defun python-shell-restart ()
   (interactive)
@@ -148,4 +148,4 @@
   (comint-previous-matching-input "^pytest" 1)
   (comint-send-input))
 
-(provide 'my-functions)
+(provide 'my-helpers)

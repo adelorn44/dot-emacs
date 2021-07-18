@@ -1,1 +1,4 @@
-(load (expand-file-name "~/.emacs.d/tests/transpose-tuple.el"))
+;;; This script loads all test cases
+(dolist (it (file-expand-wildcards "~/.emacs.d/tests/test*.el"))
+  (message it)
+  (load it))

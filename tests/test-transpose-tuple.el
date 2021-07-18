@@ -1,5 +1,5 @@
 (require 'ert)
-(require 'my-functions)
+(require 'my-helpers)
 
 (ert-deftest my-test-transpose-python-tuple ()
   "Tests the transposition of python tuples."

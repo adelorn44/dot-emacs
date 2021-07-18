@@ -2,6 +2,7 @@
 
 !*.el
 !tests
+!src
 !.github/workflows/ci.yml
 !.ttf
 !snippets
