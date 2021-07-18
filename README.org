@@ -1,0 +1,21 @@
+* Dot Emacs
+This is my configuration for Emacs.
+* Installation
+For installing Emacs, follow the [[https://www.gnu.org/software/emacs/download.html][official guide]].
+Then, clone this repository under ~/.emacs.d
+
+To do so, execute the following command:
++ git clone git@github.com:adelorn44/dot-emacs.git ~/.emacs.d
+* Customizations
+You may change some variables in src/my-customize-init.el to fit to
+your needs. I tried to put some reasonable defaults.
+* Project structure
+** Init file
+At startup, Emacs will load ~/.emacs.d/init.el by default.
+** Elisp code
+My Emacs Lisp code is under src/my-helpers.el
+*** Testing
+*Unit tests* for my Elisp code are under tests/test-*unit-test*.el
+** Mode customization
+Each customized Emacs major *mode* has a configuration under
+src/my-*mode*.el
