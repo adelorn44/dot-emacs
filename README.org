@@ -19,3 +19,9 @@ My Emacs Lisp code is under src/my-helpers.el
 ** Mode customization
 Each customized Emacs major *mode* has a configuration under
 src/my-*mode*.el
+* Font used
+I use Ubuntu font with Emacs. I added a copy of this font,
+UbuntuMono-R.ttf in this repository for convenience.
+** Ubuntu font license
+This font is under the Ubuntu font license. You may find a copy of
+this license under [[file:UbuntuMono-R-license.txt][UbuntuMono-R-license.txt]] or [[https://ubuntu.com/legal/font-licence][online]].

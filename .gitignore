@@ -4,7 +4,8 @@
 !tests
 !src
 !.github/workflows/ci.yml
-!.ttf
+!*.ttf
+!*.txt
 !snippets
 !.gitignore
 !README.org
