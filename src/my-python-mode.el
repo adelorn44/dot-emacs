@@ -25,11 +25,12 @@
                           (lsp))))  ; or lsp-deferred
 
 ;; Python mode custom keys
-(defun my-python-mode-hook ()
-  (define-key python-mode-map (kbd "C-c M-r") 'python-shell-restart)
-  (define-key python-mode-map (kbd "C-c C-d") 'python-copy-next-docstring)
-  (define-key python-mode-map (kbd "C-c C-b") 'blacken-buffer)
-  (define-key python-mode-map (kbd "C-c C-t") 'my-transpose-tuple-at-point))
-(add-hook 'python-mode-hook 'my-python-mode-hook)
+(use-package python
+  :bind
+  (:map python-mode-map
+	("C-c M-r" . python-shell-restart)
+	("C-c C-d" . python-copy-next-docstring)
+	("C-c C-b" . blacken-buffer)
+	("C-c C-t" . my-transpose-tuple-at-point)))
 
 (provide 'my-python-mode)
