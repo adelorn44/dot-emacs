@@ -4,7 +4,7 @@
 (setq my-open-two-windows nil) ;; Single screen here
 
 ;;; Path to your emacs source dir (clone emacs repo and point to its src)
-(setq find-function-C-source-directory (expand-file-name "~/.emacs.d/src"))
+(setq find-function-C-source-directory (expand-file-name "~/.emacs.d/emacs-src"))
 
 ;;; Org main directory where notes are stored (trailing / mandatory)
 (setq my-org-dir "~/Documents/")
