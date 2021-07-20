@@ -31,6 +31,16 @@
          :program nil
          :module "pytest"
          :request "launch"
-         :name "Core :: Run pytest (at point)")))
+         :name "Core :: Run pytest (at point)"))
+  (dap-register-debug-template
+   "Python :: Run file (buffer)"
+   (list :type "python"
+         :args ""
+         :cwd nil
+         :module nil
+         :program nil
+	 :justMyCode nil
+         :request "launch"
+         :name "Python :: Run file (buffer)")))
 
 (provide 'my-dap-templates)
