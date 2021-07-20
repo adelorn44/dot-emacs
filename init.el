@@ -100,6 +100,9 @@ flycheck use-package yaml-mode lsp-treemacs))
 ;; Org Mode configuration
 (require 'my-org)
 
+;; Spell checking configuration
+(require 'my-ispell)
+
 ;;; Toolbar
 (tool-bar-mode -1)
 (menu-bar-mode -1)
@@ -137,7 +140,7 @@ flycheck use-package yaml-mode lsp-treemacs))
 ;;; Font
 (condition-case nil
     (set-frame-font "Ubuntu Mono:pixelsize=23:foundry=DAMA:weight=normal:slant=normal:width=normal:spacing=100:scalable=true" nil t)
-  (error (message "Warning: You should install the Ubuntu font located in ~/.emacs.d/UbuntuMono-R.ttf")))
+  (warn (message "You should install the Ubuntu font located in ~/.emacs.d/UbuntuMono-R.ttf")))
 
 ;;; Docview
 (setq doc-view-resolution 250)
