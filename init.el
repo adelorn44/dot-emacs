@@ -30,21 +30,6 @@ flycheck use-package yaml-mode lsp-treemacs))
 ;;; Color theme
 (load-theme 'tango-dark)
 
-;; Yasnippets
-(use-package yasnippet
-  :config
-  ;; Add my snippets
-  (add-to-list 'yas-snippet-dirs (expand-file-name "~/.emacs.d/snippets") t)
-  (yas-load-directory (expand-file-name "~/.emacs.d/snippets"))
-  :bind
-  (:map yas-minor-mode-map ("C-;" . yas-expand))
-  :hook
-  ((python-mode . yas-minor-mode))
-  ((emacs-lisp-mode . yas-minor-mode))
-  :ensure t)
-
-(use-package yasnippet-snippets :ensure t)
-
 ;; Projectile
 (use-package projectile
   :ensure t
@@ -102,6 +87,12 @@ flycheck use-package yaml-mode lsp-treemacs))
 
 ;; Spell checking configuration
 (require 'my-ispell)
+
+;; Snippets configuration
+(require 'my-snippets)
+
+;; Dired configuration
+(require 'my-dired)
 
 ;;; Toolbar
 (tool-bar-mode -1)

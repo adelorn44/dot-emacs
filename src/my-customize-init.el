@@ -14,4 +14,7 @@
 ;;; Language setting for org
 (setq my-language "fr")
 
+;;; Where to find additionnal info files
+(setq Info-additional-directory-list (list (expand-file-name "~/Manuals/info")))
+
 (provide 'my-customize-init)
