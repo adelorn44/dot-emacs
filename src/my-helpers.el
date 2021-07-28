@@ -44,7 +44,7 @@
       (move-beginning-of-line nil)
       (setq beg-docstring (point))
       (search-forward "\"\"\"" nil nil 2)
-      (next-line)
+      (forward-line)
       (move-beginning-of-line nil)
       (setq end-docstring (point)))
     (kill-ring-save beg-docstring end-docstring)))
@@ -108,16 +108,21 @@
     (set-window-point (selected-window) init-point))
   nil)
 
-(defun yank-with-indent ()
-  (interactive)
-  (let ((indent
-         (buffer-substring-no-properties (line-beginning-position) (line-end-position))))
-    (message indent)
+(defun yank-with-indent (&optional indent-length)
+  "Yank text with indent-length spaces or with the current indent line before point."
+  (interactive "P")
+  (let (indent bound)
+    (if indent-length
+	(progn (setq indent (make-string indent-length ? ))
+		     (insert indent))
+      (setq indent (buffer-substring-no-properties (line-beginning-position) (line-end-position))))
     (yank)
-    (narrow-to-region (mark t) (point))
+    (setq bound (point))
     (pop-to-mark-command)
-    (replace-string "\n" (concat "\n" indent))
-    (widen)))
+    (while (search-forward "\n" bound t)
+      (progn (replace-match (concat "\n" indent))
+	     (setq bound (+ bound (length indent))))))
+  (if indent-length (backward-delete-char indent-length)))
 
 (defun my-dot-py-buffers ()
   "Returns a list of already opened buffers ending with .py"
@@ -144,8 +149,16 @@
 	     (switch-to-buffer "*shell*")))
   (if (not (string-equal "shell-mode" major-mode))
       (shell (current-buffer)))
-  (end-of-buffer)
+  (goto-char (point-max))
   (comint-previous-matching-input "^pytest" 1)
   (comint-send-input))
+
+(defun my-compile-elisp-code ()
+  "Compiles my custom elisp code"
+  (interactive)
+  (byte-compile-file "~/.emacs.d/init.el")
+  (byte-recompile-directory (expand-file-name "~/.emacs.d/src") 0)
+  (dolist (it (file-expand-wildcards "~/.emacs.d/src/*.el"))
+  (byte-compile-file it)))
 
 (provide 'my-helpers)

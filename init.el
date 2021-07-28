@@ -21,6 +21,9 @@ flycheck use-package yaml-mode lsp-treemacs))
 (require 'my-helpers)
 (require 'my-customize-init)
 
+;; Bind key is required by use-package
+(require 'bind-key)
+
 ;; Same PATH as shell
 (use-package exec-path-from-shell
   :ensure t
