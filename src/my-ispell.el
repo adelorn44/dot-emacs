@@ -14,7 +14,8 @@
   "Toggle the current dictionnary between english and french."
   (interactive)
   (if (equal ispell-current-dictionary "en")
-      (ispell-change-dictionary "fr" 1)
-    (ispell-change-dictionary "en" 1)))
+      (ispell-change-dictionary "fr")
+    (ispell-change-dictionary "en"))
+  (flyspell-buffer))
 
 (provide 'my-ispell)
