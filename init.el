@@ -1,7 +1,7 @@
 (require 'package)
 
 ;;; List of required packages (used without customizations)
-(setq package-list '(cmake-mode magit dockerfile-mode vue-mode
+(setq package-list '(cmake-mode dockerfile-mode vue-mode
 flycheck use-package yaml-mode lsp-treemacs))
 
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
@@ -96,6 +96,9 @@ flycheck use-package yaml-mode lsp-treemacs))
 
 ;; Dired configuration
 (require 'my-dired)
+
+;; Magit configuration
+(require 'my-magit)
 
 ;;; Toolbar
 (tool-bar-mode -1)
