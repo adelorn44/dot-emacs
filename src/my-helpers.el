@@ -65,9 +65,12 @@
 
 (defun kill-ring-save-up-to-char (arg char)
   (interactive "p\ncSave up to char: ")
-  (save-excursion
-    (zap-up-to-char arg char)
-    (yank)))
+  (barf-if-buffer-read-only)
+  (let ((buffer-modified (buffer-modified-p)))
+    (save-excursion
+      (zap-up-to-char arg char)
+      (yank)
+      (restore-buffer-modified-p buffer-modified))))
 
 (defun my/display-line-length ()
   (interactive)
