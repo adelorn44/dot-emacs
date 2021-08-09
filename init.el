@@ -100,6 +100,9 @@ flycheck use-package yaml-mode lsp-treemacs))
 ;; Magit configuration
 (require 'my-magit)
 
+;; Tree sitter configuration (syntax highlighting)
+(require 'my-tree-sitter)
+
 ;;; Toolbar
 (tool-bar-mode -1)
 (menu-bar-mode -1)
@@ -137,7 +140,7 @@ flycheck use-package yaml-mode lsp-treemacs))
 ;;; Font
 (condition-case nil
     (set-frame-font "Ubuntu Mono:pixelsize=23:foundry=DAMA:weight=normal:slant=normal:width=normal:spacing=100:scalable=true" nil t)
-  (warn (message "You should install the Ubuntu font located in ~/.emacs.d/UbuntuMono-R.ttf")))
+  ((error) (message "You should install the Ubuntu font located in ~/.emacs.d/UbuntuMono-R.ttf")))
 
 ;;; Docview
 (setq doc-view-resolution 250)
@@ -156,7 +159,8 @@ flycheck use-package yaml-mode lsp-treemacs))
   ;; Diminish global modes since they are always present
   (diminish 'projectile-mode)
   (diminish 'ivy-mode)
-  (diminish 'which-key-mode))
+  (diminish 'which-key-mode)
+  (diminish 'tree-sitter-mode))
 
 (use-package csv-mode
   :custom
