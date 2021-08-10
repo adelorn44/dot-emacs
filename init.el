@@ -40,13 +40,18 @@ flycheck use-package yaml-mode lsp-treemacs))
   (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
   (projectile-mode 1)
   :custom
-  (projectile-completion-system 'ivy))
+  (projectile-completion-system 'ivy)
+  :diminish)
 
 ;; Ivy
-(use-package ivy :ensure t :config (ivy-mode 1))
+(use-package ivy :ensure t :config (ivy-mode 1) :diminish)
 
 ;; Company
-(use-package company :ensure t)
+(use-package company
+  :ensure t
+  :config
+  (global-company-mode 1)
+  :diminish)
 
 ;; Dap Mode
 (use-package dap-mode
@@ -74,7 +79,8 @@ flycheck use-package yaml-mode lsp-treemacs))
 (use-package which-key
   :ensure t
   :config
-  (which-key-mode))
+  (which-key-mode)
+  :diminish)
 
 ;; Web configuration
 (require 'my-web-mode)
@@ -156,11 +162,7 @@ flycheck use-package yaml-mode lsp-treemacs))
 (use-package diminish
   :ensure t
   :config
-  ;; Diminish global modes since they are always present
-  (diminish 'projectile-mode)
-  (diminish 'ivy-mode)
-  (diminish 'which-key-mode)
-  (diminish 'tree-sitter-mode))
+  (diminish 'auto-revert-mode))
 
 (use-package csv-mode
   :custom
