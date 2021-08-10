@@ -21,8 +21,9 @@
   (define-key lsp-mode-map (kbd "C-c l") lsp-command-map)
   (lsp-enable-which-key-integration)
   :hook (python-mode . (lambda ()
-                          (require 'lsp-pyright)
-                          (lsp))))  ; or lsp-deferred
+			 (setq fill-column 120)
+                         (require 'lsp-pyright)
+                         (lsp))))  ; or lsp-deferred
 
 ;; Python mode custom keys
 (use-package python
