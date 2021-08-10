@@ -164,4 +164,9 @@
   (dolist (it (file-expand-wildcards "~/.emacs.d/src/*.el"))
   (byte-compile-file it)))
 
+(defun my-balance-if-larger-than-half ()
+  "Balance the current window if its height is larger than half of the frame"
+  (if (= (/ (frame-height) (window-height)) 1)
+      (balance-windows)))
+
 (provide 'my-helpers)
