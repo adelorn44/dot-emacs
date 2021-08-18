@@ -1,0 +1,32 @@
+import datetime as dt
+import logging
+import pathlib
+from pathlib import Path
+from typing import Dict, List, Optional, Sequence, Tuple, Union
+
+import geopandas as gpd
+import pandas as pd
+
+from .. import cli
+
+logger = logging.getLogger(__name__)
+
+
+class TestDoctring:
+    """A class made to test my elisp code"""
+
+    def __init__(
+        self,
+        first_arg: float,
+        second_arg: str,
+    ):
+        """Constructor for ConnectionOptions.
+
+        Args:
+            first_arg (float):
+                A first argument.
+
+            second_arg (str):
+                A second argument.
+        """
+        pass

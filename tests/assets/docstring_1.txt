@@ -1,0 +1,1 @@
+    """A class made to test my elisp code"""

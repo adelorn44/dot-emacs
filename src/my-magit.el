@@ -14,7 +14,8 @@
 	    (erase-buffer)
 	    (if (zerop (call-process "pre-commit" nil (current-buffer) nil))
 		(message "Pre Commit succeeded")
-	      (message "Pre Commit failed. See *pre-commit* for details.")))))))
+	      (message "Pre Commit failed. See *pre-commit* for details."))
+	    (magit-refresh))))))
 
 (use-package magit
   :ensure t)

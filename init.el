@@ -164,6 +164,9 @@ flycheck use-package yaml-mode lsp-treemacs))
   :config
   (diminish 'auto-revert-mode))
 
+(use-package emacs
+  :hook (latex-mode . auto-fill-mode))
+
 (use-package csv-mode
   :custom
   ;;; French CSV format

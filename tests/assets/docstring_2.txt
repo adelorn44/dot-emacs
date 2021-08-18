@@ -1,0 +1,9 @@
+        """Constructor for ConnectionOptions.
+
+        Args:
+            first_arg (float):
+                A first argument.
+
+            second_arg (str):
+                A second argument.
+        """
