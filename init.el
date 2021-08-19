@@ -57,7 +57,9 @@ flycheck use-package yaml-mode lsp-treemacs))
 (use-package dap-mode
   :ensure t
   :bind
-  (:map dap-mode-map ("C-c h" . dap-hydra)))
+  (:map dap-mode-map
+	("C-c h" . dap-hydra)
+	("C-c r" . dap-ui-repl)))
 
 ;; Shell Script
 '(sh-basic-offset 8)
