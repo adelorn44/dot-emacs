@@ -1,7 +1,7 @@
 (require 'package)
 
 ;;; List of required packages (used without customizations)
-(setq package-list '(cmake-mode dockerfile-mode vue-mode
+(setq package-list '(cmake-mode dockerfile-mode
 flycheck use-package yaml-mode lsp-treemacs))
 
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
@@ -49,9 +49,28 @@ flycheck use-package yaml-mode lsp-treemacs))
 ;; Company
 (use-package company
   :ensure t
+  :custom
+  (company-minimum-prefix-length 2)
   :config
   (global-company-mode 1)
   :diminish)
+
+;; Vue mode
+
+(use-package vue-mode
+  :ensure t
+  :hook
+  (vue-mode . lsp)
+  (vue-mode . yas-minor-mode)
+  :custom
+  (vue-html-extra-indent 2)
+  (js-indent-level 2)
+  (typescript-indent-level 2)
+  (lsp-ui-sideline-show-code-actions nil))
+
+;; Typescript
+(use-package typescript-mode
+  :hook (typescript-mode . lsp))
 
 ;; Dap Mode
 (use-package dap-mode
