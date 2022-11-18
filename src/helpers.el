@@ -1,34 +1,5 @@
 ;;; My helper/useful functions
 
-(defun python-shell-restart ()
-  (interactive)
-  (let ((buffer-process)
-	(buffer-beginning (current-buffer))
-	(window-beginning (selected-window)))
-    (switch-to-buffer "*Python*")
-    (setq buffer-process (get-buffer-process (current-buffer)))
-    (if buffer-process (set-process-query-on-exit-flag buffer-process nil))
-    (kill-buffer "*Python*")
-    (run-python)
-    (switch-to-buffer "*Python*")
-    (setq buffer-process (get-buffer-process (current-buffer)))
-    (set-process-query-on-exit-flag buffer-process t)
-    ;; Rearanging windows
-    (select-window window-beginning)
-    (switch-to-buffer buffer-beginning)
-    ;; Opening python in other window if there is one
-    (my-open-buffer-split-below "*Python*")
-    (select-window window-beginning)
-    (switch-to-buffer buffer-beginning)))
-
-(defun my-open-buffer-split-below (buffer)
-  (let ((window-beginning (selected-window)))
-    (if (= (count-windows) 1)
-	(split-window-below))
-    (other-window 1)
-    (switch-to-buffer buffer)
-    (select-window window-beginning)))
-  
 (defun pwd-kill ()
   "Add the current directory to kill ring."
   (interactive)
@@ -49,20 +20,6 @@
       (setq end-docstring (point)))
     (kill-ring-save beg-docstring end-docstring)))
 
-(defun pytest-command-at-point ()
-  (interactive)
-  (let* ((function-name (symbol-name (symbol-at-point)))
-	(command (concat "pytest " buffer-file-name "::" function-name)))
-    (if (get-buffer "*pytest-shell*")
-	(progn
-	  (my-open-buffer-split-below "*pytest-shell*")
-	  (other-window 1)
-	  (switch-to-buffer "*pytest-shell*")
-	  (insert command)
-	  (comint-send-input))
-      (shell-command (concat "pytest " buffer-file-name "::" function-name)))))
-
-
 (defun kill-ring-save-up-to-char (arg char)
   (interactive "p\ncSave up to char: ")
   (barf-if-buffer-read-only)
@@ -72,7 +29,7 @@
       (yank)
       (restore-buffer-modified-p buffer-modified))))
 
-(defun my/display-line-length ()
+(defun my-display-line-length ()
   (interactive)
   (message (number-to-string (- (line-end-position) (line-beginning-position)))))
 
@@ -143,26 +100,6 @@
       (blacken-buffer t)
       (message (concat "Blackened buffer " (buffer-name it)))))
   (message (concat "Blackened " (int-to-string (length (my-dot-py-buffers))) " buffer(s)")))
-
-(defun my-pytest-redo ()
-  (interactive)
-  (if (not (string-equal "*pytest-shell*" (buffer-name (current-buffer))))
-      (progn (my-open-buffer-split-below (current-buffer))
-	     (other-window 1)
-	     (switch-to-buffer "*pytest-shell*")))
-  (if (not (string-equal "shell-mode" major-mode))
-      (shell (current-buffer)))
-  (goto-char (point-max))
-  (comint-previous-matching-input "^pytest" 1)
-  (comint-send-input))
-
-(defun my-compile-elisp-code ()
-  "Compiles my custom elisp code"
-  (interactive)
-  (byte-compile-file "~/.emacs.d/init.el")
-  (byte-recompile-directory (expand-file-name "~/.emacs.d/src") 0)
-  (dolist (it (file-expand-wildcards "~/.emacs.d/src/*.el"))
-  (byte-compile-file it)))
 
 (defun my-insert-hugo-date ()
 "Insert the current date at point
