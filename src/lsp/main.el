@@ -1,5 +1,6 @@
 (use-package lsp-mode
   :ensure t
+  :bind (:map lsp-command-map ("C-c l" . lsp-command-map))
   :custom
   (lsp-keymap-prefix "C-c l")
   (lsp-completion-provider :capf)
@@ -7,6 +8,7 @@
   (lsp-headerline-breadcrumb-enable nil "Disable breadcrumb")
   (lsp-treemacs-sync-mode -1 "Disable Treemacs integration")
   :config
+  (define-key lsp-mode-map (kbd "C-c l") lsp-command-map)
   (lsp-enable-which-key-integration t))
 
 (use-package lsp-ui
