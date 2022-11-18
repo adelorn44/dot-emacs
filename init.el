@@ -1,10 +1,9 @@
 ;;; Make use-package available
-(let ((package 'use-package))
-  (require 'package)
-  (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
-  (package-initialize)
-  (unless package-archive-contents (package-refresh-contents))
-  (unless (package-installed-p package) (package-install package)))
+(require 'package)
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
+(package-initialize)
+(unless package-archive-contents (package-refresh-contents))
+(unless (package-installed-p 'use-package) (package-install 'use-package))
 
 ;;; Add src directories to load path
 (dolist (path '("~/.emacs.d/src" "~/.emacs.d/src/dap" "~/.emacs.d/src/lsp"))
