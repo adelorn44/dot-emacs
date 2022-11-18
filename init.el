@@ -8,7 +8,7 @@
 
 ;;; Add src directories to load path
 (dolist (path '("~/.emacs.d/src" "~/.emacs.d/src/dap" "~/.emacs.d/src/lsp"))
-  (add-to-list 'load-path path))
+  (add-to-list 'load-path path :append nil))
 
 ;;; Require custom Elisp code
 (require 'my-helpers "helpers.el")
