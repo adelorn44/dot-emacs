@@ -1,50 +1,25 @@
-(require 'package)
+;;; Make use-package available
+(let ((package 'use-package))
+  (require 'package)
+  (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
+  (package-initialize)
+  (unless package-archive-contents (package-refresh-contents))
+  (unless (package-installed-p package) (package-install package)))
 
-;;; List of required packages (used without customizations)
-(setq package-list '(cmake-mode dockerfile-mode
-flycheck use-package yaml-mode lsp-treemacs))
+;;; Add src directories to load path
+(dolist (path '("~/.emacs.d/src" "~/.emacs.d/src/dap" "~/.emacs.d/src/lsp"))
+  (add-to-list 'load-path path))
 
-(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
-(package-initialize)
+;;; Require custom Elisp code
+(require 'my-helpers "helpers.el")
 
-;;; fetch the list of packages available
-(unless package-archive-contents
-  (package-refresh-contents))
+;;; Configure packages using use-package
+;; Ansible
+(use-package ansible :ensure t)
+(add-hook 'yaml-mode-hook '(lambda () (ansible 1)))
 
-;;; install the missing packages
-(dolist (package package-list)
-  (unless (package-installed-p package)
-    (package-install package)))
-
-;; Require my custom functions and customizations
-(add-to-list 'load-path "~/.emacs.d/src")
-(require 'my-helpers)
-(require 'my-customize-init)
-
-;; Bind key is required by use-package
-(require 'bind-key)
-
-;; Same PATH as shell
-(use-package exec-path-from-shell
-  :ensure t
-  :config
-  (exec-path-from-shell-initialize))
-
-;;; Color theme
-(load-theme 'tango-dark)
-
-;; Projectile
-(use-package projectile
-  :ensure t
-  :config
-  (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
-  (projectile-mode 1)
-  :custom
-  (projectile-completion-system 'ivy)
-  :diminish)
-
-;; Ivy
-(use-package ivy :ensure t :config (ivy-mode 1) :diminish)
+;;; Bind key
+(use-package bind-key :ensure t)
 
 ;; Company
 (use-package company
@@ -55,151 +30,145 @@ flycheck use-package yaml-mode lsp-treemacs))
   (global-company-mode 1)
   :diminish)
 
-;; Vue mode
-
-(use-package vue-mode
+;;; Diminish
+(use-package diminish
   :ensure t
-  :hook
-  (vue-mode . lsp)
-  (vue-mode . yas-minor-mode)
-  :custom
-  (vue-html-extra-indent 2)
-  (js-indent-level 2)
-  (typescript-indent-level 2)
-  (lsp-ui-sideline-show-code-actions nil))
+  :config
+  (diminish 'auto-revert-mode))
 
-;; Typescript
-(use-package typescript-mode
-  :hook (typescript-mode . lsp))
+;;; Docker
+(use-package dockerfile-mode :ensure t)
 
-;; Dap Mode
-(use-package dap-mode
-  :ensure t
+;;; Magit
+(use-package magit :ensure t)
+
+;; Ivy
+(use-package ivy :ensure t :config (ivy-mode 1) :diminish)
+
+;;; Org
+(use-package org
   :bind
-  (:map dap-mode-map
-	("C-c h" . dap-hydra)
-	("C-c r" . dap-ui-repl)))
+  (:map org-mode-map
+	("C-c i" . org-insert-item))
+  :config
+  (company-mode)
+  ;;; Org babel
+  (org-babel-do-load-languages 'org-babel-load-languages '((python . t) (http . t)))
+  ;;; Markdown export
+  (require 'ox-md)
+  ;;; Open .pdf with evince
+  (add-to-list 'org-file-apps '(("\\.pdf\\'" "evince %s")) t)
+  :custom
+  ;; Agenda
+  (org-agenda-files (file-expand-wildcards (concat my-org-dir "*.org") t))
+  (org-export-default-language my-language)
+  (org-todo-keywords my-org-keywords)
+  ;; Org Capture
+  (org-directory (expand-file-name my-org-dir))
+  (org-default-notes-file (concat org-directory my-org-capture))
+  :hook
+  (org-mode . auto-fill-mode))
 
-;; Shell Script
-'(sh-basic-offset 8)
-'(sh-indentation 8)
-'(smie-indent-basic 8)
+;;; Flycheck
+(use-package flycheck :ensure t)
 
-;;; C-mode
-(add-hook 'c-mode-hook 'lsp)
-(add-hook 'cpp-mode-hook 'lsp)
-(add-hook 'c++-mode-hook 'lsp)
-(setq c-default-style '((c-mode . "linux")
-			(c++-mode . "gnu")
-			(other . "cc-mode")))
+;;; Flyspell
+(use-package flyspell
+  :ensure t
+  :hook (latex-mode . flyspell-mode))
 
-;;; Global electric pairs
-(electric-pair-mode t)
+;;; Powerline
+(use-package powerline :ensure t :config (powerline-default-theme))
 
-;;; Global which key mode
+;;; Projectile
+(use-package projectile
+  :ensure t
+  :config
+  (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
+  (projectile-mode 1)
+  :custom
+  (projectile-completion-system 'ivy)
+  :diminish)
+
+;;; Tree sitter (programming language syntax highlighting)
+(use-package tree-sitter-langs :ensure t)
+(use-package tree-sitter
+  :ensure t
+  :requires tree-sitter-langs
+  :config
+  (require 'tree-sitter-langs)
+  (global-tree-sitter-mode)
+  (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode)
+  :diminish)
+
+;;; Web mode
+(use-package web-mode
+  :ensure t
+  :config
+  (add-to-list 'auto-mode-alist '("\\.html\\'" . web-mode))
+  (add-to-list 'auto-mode-alist '("\\.css\\'" . web-mode)))
+
+;;; Which key
 (use-package which-key
   :ensure t
   :config
   (which-key-mode)
   :diminish)
 
-;; Web configuration
-(require 'my-web-mode)
+;;; Yaml
+(use-package yaml-mode :ensure t)
 
-;; Python configuration
-(require 'my-python-mode)
+;;; Require LSP/DAP configurations
+(require 'my-dap "dap/main.el")
+(require 'my-lsp "lsp/main.el")
 
-;; LSP configuration
-(require 'my-lsp)
-
-;; Org Mode configuration
-(require 'my-org)
-
-;; Spell checking configuration
-(require 'my-ispell)
-
-;; Snippets configuration
-(require 'my-snippets)
-
-;; Dired configuration
-(require 'my-dired)
-
-;; Magit configuration
-(require 'my-magit)
-
-;; Tree sitter configuration (syntax highlighting)
-(require 'my-tree-sitter)
-
-;;; Toolbar
-(tool-bar-mode -1)
-(menu-bar-mode -1)
-
-;;; Startup screen
-(setq inhibit-startup-screen t)
-
-;;; Global Shortcuts
-(global-set-key (kbd "C-x C-b") 'ibuffer)
-
-(global-set-key (kbd "C-c m") 'menu-bar-mode)
-
-(global-set-key (kbd "C-c g g") 'beginning-of-buffer)
-(global-set-key (kbd "C-c g e") 'end-of-buffer)
-
-(global-set-key (kbd "C-c a") 'org-agenda-list)
-(global-set-key (kbd "C-c t") 'org-todo-list)
-(global-set-key (kbd "C-c c") 'my/display-line-length)
-(global-set-key (kbd "C-c u") 'emacs-uptime)
-(global-set-key (kbd "C-z") 'zap-up-to-char)
-(global-set-key (kbd "M-z") 'zap-to-char)
-(global-set-key (kbd "C-M-z") 'kill-ring-save-up-to-char)
-(global-set-key (kbd "C-c y") 'yank-with-indent)
-
-;; Multiple screen setup
-(global-set-key (kbd "C-x <down>") 'other-frame)
-(global-set-key (kbd "C-x <up>") 'other-frame)
-(global-set-key (kbd "C-x C-<down>") 'other-frame)
-(global-set-key (kbd "C-x C-<up>") 'other-frame)
-
-(global-set-key (kbd "<f5>") 'treemacs)
-(global-set-key (kbd "<f6>") 'python-mode)
-(global-set-key (kbd "<f7>") 'my-pytest-redo)
+;;; Customize UI
+;;; Color theme
+(load-theme 'tango-dark)
 
 ;;; Font
 (condition-case nil
     (set-frame-font "Ubuntu Mono:pixelsize=23:foundry=DAMA:weight=normal:slant=normal:width=normal:spacing=100:scalable=true" nil t)
   ((error) (message "You should install the Ubuntu font located in ~/.emacs.d/UbuntuMono-R.ttf")))
 
-;;; Docview
-(setq doc-view-resolution 250)
-
-;;; Disable sroll bar (for gtk only)
+;;; Srollbar
 (if (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
 
-;;; Open two frame at startup
-(if my-open-two-windows (add-hook 'emacs-startup-hook 'make-frame-command))
+;;; Startup screen
+(setq inhibit-startup-screen t)
 
-(use-package powerline :ensure t :config (powerline-default-theme))
+;;; Toolbar
+(tool-bar-mode -1)
+(menu-bar-mode -1)
 
-(use-package diminish
-  :ensure t
-  :config
-  (diminish 'auto-revert-mode))
+;;; Keybindings
+;;; Global Shortcuts
+(global-set-key (kbd "C-x C-b") 'ibuffer)
 
-(use-package emacs
-  :hook (latex-mode . auto-fill-mode))
+(global-set-key (kbd "C-c m") 'menu-bar-mode)
 
-(use-package csv-mode
-  :custom
-  ;;; French CSV format
-  (csv-separators '(";" "," ":")))
+(global-set-key (kbd "C-c u") 'emacs-uptime)
+(global-set-key (kbd "C-z") 'zap-up-to-char)
+(global-set-key (kbd "M-z") 'zap-to-char)
+(global-set-key (kbd "C-M-z") 'kill-ring-save-up-to-char)
+(global-set-key (kbd "C-c y") 'yank-with-indent)
 
-;;; Tabs are usually bad
-(setq indent-tabs-mode nil)
+(global-set-key (kbd "<f5>") 'treemacs)
 
-;;; Enable upcase region (bound on C-x C-u)
+;;; Emacs builtin Customize config
+(setq custom-file "~/.emacs.d/custom.el")
+(load custom-file)
+
+;;; Misc
+;;; Allow region narrowing
+(put 'narrow-to-region 'disabled nil)
+
+;;; Enable upcase region
 (put 'upcase-region 'disabled nil)
 (put 'downcase-region 'disabled nil)
 
-;;; Custom in separate file
-(setq custom-file "~/.emacs.d/custom.el")
-(load custom-file)
+;;; Global electric pairs
+(electric-pair-mode t)
+
+;;; Indent
+(setq indent-tabs-mode nil)

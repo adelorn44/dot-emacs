@@ -1,5 +1,3 @@
-;;; LSP mode configuration
-
 (use-package lsp-mode
   :ensure t
   :custom
@@ -23,8 +21,10 @@
 	("C-c i" . lsp-ui-imenu)
 	("C-c f" . lsp-ui-flycheck-list)))
 
-;; Resize the window
-(require 'my-helpers)
-(advice-add 'lsp-ui-flycheck-list :after #'my-balance-if-larger-than-half)
+(use-package lsp-treemacs :ensure t)
 
+(require 'my-lsp-c "lsp/c.el")
+(require 'my-lsp-php "lsp/php.el")
+(require 'my-lsp-python "lsp/python.el")
+(require 'my-lsp-typescript "lsp/typescript.el")
 (provide 'my-lsp)

@@ -164,9 +164,26 @@
   (dolist (it (file-expand-wildcards "~/.emacs.d/src/*.el"))
   (byte-compile-file it)))
 
-(defun my-balance-if-larger-than-half ()
-  "Balance the current window if its height is larger than half of the frame"
-  (if (= (/ (frame-height) (window-height)) 1)
-      (balance-windows)))
+(defun my-insert-hugo-date ()
+"Insert the current date at point
+
+The date format matches Hugo blogging system format
+
+The minutes and seconds are both set to `00' since they are not relevant
+as an article takes multiple hours to be completed
+"
+  (interactive)
+  (insert (format-time-string (concat "%F" "T" "%H:00:00" "%z"))))
+
+(defun my-hugo-server ()
+  (interactive)
+  (switch-to-buffer "*hugo*")
+  (switch-to-prev-buffer)
+  (with-current-buffer "*hugo*"
+    (cd "~/Documents/freelance/blog")
+    (make-process
+     :name "hugo"
+     :buffer (current-buffer)
+     :command '("hugo" "server"))))
 
 (provide 'my-helpers)

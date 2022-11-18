@@ -3,6 +3,8 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(ede-project-directories
+   '("/tmp/myproject/include" "/tmp/myproject/src" "/tmp/myproject"))
  '(ibuffer-saved-filter-groups
    '(("Pytest"
       ("Pytest"
@@ -50,7 +52,13 @@
        (mode . gnus-summary-mode)
        (mode . gnus-article-mode)))))
  '(package-selected-packages
-   '(ox-md yasnippet-snippets yaml-mode which-key web-mode vue-mode use-package unicode-fonts pyenv-mode-auto projectile powerline magit lsp-ui lsp-pyright ivy flycheck exec-path-from-shell dockerfile-mode diminish dap-mode csv-mode company cmake-mode blacken)))
+   '(ob-http string-inflection pyvenv ansible logstash-conf ini-mode nginx-mode docker-tramp nov jinja2-mode sql-indent php-mode phpt-mode scss-mode vue-mode js2-mode typescript-mode ox-md yasnippet-snippets yaml-mode which-key web-mode use-package unicode-fonts pyenv-mode-auto projectile powerline magit lsp-ui lsp-pyright ivy flycheck exec-path-from-shell dockerfile-mode diminish dap-mode csv-mode company cmake-mode blacken))
+ '(projectile-use-git-grep t)
+ '(safe-local-variable-values
+   '((TeX-master . "rapport.tex")
+     (TeX-source-correlate-method-active . synctex)
+     (TeX-engine . luatex)))
+ '(warning-suppress-types '((comp))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
